@@ -1565,6 +1565,19 @@
             }
         }
     },
+    "spracing": {
+        "name": "SPRacing",
+        "rx_2400": {
+            "comborxvtxosd": {
+                "product_name": "SPRacingPixelOSD 2.4GHz Combo RX/VTX/OSD",
+                "lua_name": "SPR 2G4 RX/VTX/OSD",
+                "layout_file": "SPRacing 2400 Combo RX VTX OSD.json",
+                "upload_methods": ["uart", "wifi", "betaflight"],
+                "platform": "esp32",
+                "firmware": "SPRacing_ESP32_2400_COMBO_RX_VTX_OSD"
+            }
+        }
+    },
     "vantac": {
         "name": "Vantac",
         "tx_2400": {

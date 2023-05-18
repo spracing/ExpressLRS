@@ -1,0 +1,100 @@
+{
+    "//": "GPIO Matrix Indexes, 0 = GPIO0, *not* 0 = pin 0",
+
+    "//": "GPIO0 Strapping - Default: Pull-up - Button pressed pulls-down",
+    "button": 0,
+
+    "serial_tx": 1,
+    "serial_rx": 3,
+
+    "//": "Radio SPI CLK/DATA pins are on same power domain",
+    "radio_miso": 33,
+    "radio_mosi": 32,
+    "radio_sck": 27,
+
+    "//": "NRESET is active-low with 50k pull-up in SX1280",
+    "//": "GPIO5 Strapping - Default: Pull-up",
+    "radio_rst": 5,
+
+    "//": "GPIO34-39 are INPUT ONLY pins",
+    "radio_busy": 34,
+    "radio_busy_2": 35,
+    "radio_dio1": 38,
+    "radio_dio1_2": 39,
+
+    "//": "NSS is active-low, SX1280 MISO is high-impedance when NSS is high.",
+    "radio_nss": 11, <-- FAIL (CMD)
+    "//": "GPIO15/MTDO Strapping - Default: Pull-up",
+    "radio_nss_2": 8, <-- FAIL (SD1)
+
+    "led_rgb": 22,
+
+    "//": "DAC_2/Pin15",
+    "camera_osd": 26,
+
+    "//": "DAC_1/Pin14     - VTX_PA_BIAS_OUT - VTX PA RF bias voltage",
+    "vtx_amp_pwm": 25, 
+    "//": "GPIO36/ADC1_CH0 - VTX_PA_VPD      - PDET output voltage from VTX PA",
+    "vtx_amp_vpd": 36,
+    "//": "GPIO2 Strapping - VTX_PA_EN       - Default: Pull-down - HIGH = VTA_PA_ENABLED",
+    "vtx_amp_vref": 2,
+
+    "//": "On the RFX2401C RX active is FALSE when TXEN is HIGH/ON",
+    "power_txen": 6, <-- FAIL (CLK)
+    "power_txen_2": 7, <-- FAIL (SD0)
+
+    "//": "Unused RXEN, pull-ups fitted to both PAs, TXEN HIGH disables RX",
+    "_power_rxen": "N/A",
+    "_power_rxen_2": "N/A",
+
+    "//": "VTX_SPILI",
+    "vtx_nss": 21,
+    "//": "VTX_SPIDATA connected to 'vtx_miso' pin though 0ohm resistor",
+    "vtx_miso": 23,
+    "//": "VTX_SPIDATA connected to 'vtx_mosi' pin though 330ohm resistor",
+    "vtx_mosi": 18,
+    "//": "VTX_SPISCK",
+    "vtx_sck": 19,
+
+    "//": "UART connection for SPRacingPixelOSD via CanvasAPI",
+    "//": "2 channel SPDT switch switches FC UART to OSD or U2 to OSD when HIGH, pull-up fitted so that FC connects to OSD by default",
+    "osd_uart_sw_en": 4,
+    "//": "U2RXD - goes to TX on OSD",
+    "osd_uart_rx": 16, <-- FAIL (IO16)
+    "//": "U2TXD - goes to RX on OSD",
+    "osd_uart_tx": 17, <-- FAIL (IO17)
+
+    "//": "PWM outputs on remaining output pins",
+    "//": "S1 Corner Pad - GPIO9/U1RXD",
+    "//": "S2 Corner Pad - GPIO10/U1TXD",
+    "//": "S3 Corner Pad - GPIO13/MTCK - JTAG 1/4 - MTCK",
+    "//": "S4 Corner Pad - GPIO14/MTMS - JTAG 2/4 - MTMS",
+    "pwm_outputs":[9, 10, 13, 14],
+
+    "//": "JTAG 3/4 - GPIO12/MTDI Strapping - Default: Pull-down",
+    "jtag_mtdi": 12,
+    "//": "JTAG 4/4 - GPIO15/MTDI Strapping - Default: Pull-up",
+    "jtag_mtdo": 15,
+
+    "//": "ADC1_CH1 - ADC input via 100k/10k 10:1 voltage divider",
+    "adc_vbat": 37,
+
+    "//": "Settings",
+    "led_rgb_isgrb": true,
+    "ledidx_rgb_status": [0],
+    "ledidx_rgb_vtx": [1],
+    "ledidx_rgb_boot": [0,1],
+
+    "//": "TODO",
+    "power_lna_gain": 12,
+    "power_min": 0,
+    "power_high": 3,
+    "power_max": 3,
+    "power_default": 3,
+    "power_control": 0,
+    "power_values": [-10,-6,-3,1],
+
+    "//": "TODO",
+    "vtx_amp_vpd_25mW": [600,600,600,600],
+    "vtx_amp_vpd_100mW": [1500,1500,1500,1500]
+}

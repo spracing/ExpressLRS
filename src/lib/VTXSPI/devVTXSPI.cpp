@@ -322,7 +322,8 @@ static void initialize()
         if (GPIO_PIN_SPI_VTX_SCK != UNDEF_PIN && GPIO_PIN_SPI_VTX_SCK != GPIO_PIN_SCK)
         {
             #if defined(PLATFORM_ESP32_S3)
-            vtxSPI = new SPIClass(FSPI);
+            vtxSPI = new SPIClass(HSPI);
+            vtxSPI->setFrequency(10000);
             #else
             vtxSPI = new SPIClass(VSPI);
             #endif

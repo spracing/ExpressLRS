@@ -61,18 +61,18 @@ device_affinity_t ui_devices[] = {
 #ifdef HAS_LED
   {&LED_device, 0},
 #endif
-  {&LUA_device, 0},
 #ifdef HAS_RGB
   {&RGB_device, 0},
 #endif
+#ifdef HAS_VTX_SPI
+  {&VTxSPI_device, 0},
+#endif
+  {&LUA_device, 0},
 #ifdef HAS_WIFI
   {&WIFI_device, 0},
 #endif
 #ifdef HAS_BUTTON
   {&Button_device, 0},
-#endif
-#ifdef HAS_VTX_SPI
-  {&VTxSPI_device, 0},
 #endif
 #ifdef USE_ANALOG_VBAT
   {&AnalogVbat_device, 0},

@@ -326,13 +326,14 @@ static void initialize()
             DBGLN("VTX: Using dedicated SPI");
             #if defined(PLATFORM_ESP32_S3)
             vtxSPI = new SPIClass(HSPI);
-            vtxSPI->setFrequency(10000);
             #else
             vtxSPI = new SPIClass(VSPI);
             #endif
             vtxSPI->begin(GPIO_PIN_SPI_VTX_SCK, GPIO_PIN_SPI_VTX_MISO, GPIO_PIN_SPI_VTX_MOSI, GPIO_PIN_SPI_VTX_NSS);
+            vtxSPI->setFrequency(1000000);
             vtxSPI->setHwCs(true);
             vtxSPI->setBitOrder(LSBFIRST);
+            vtxSPI->setDataMode(SPI_MODE0);
         }
         else
         {

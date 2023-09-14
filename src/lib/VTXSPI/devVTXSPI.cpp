@@ -82,14 +82,14 @@ uint16_t VpdFreqArray[] = {5650, 5750, 5850, 5950};
 uint8_t VpdSetPointCount =  ARRAY_SIZE(VpdFreqArray);
 
 static SPIClass *vtxSPI;
+static bool vtxSPIIsShared = false;
 
 static void rtc6705WriteRegister(uint32_t regData)
 {
-    bool shared = GPIO_PIN_SPI_VTX_SCK == GPIO_PIN_SCK ? true : false;
-    DBGLN("VTX: Register: %d, shared: %d", regData, shared);
+    DBGLN("VTX: Register: %d", regData);
 
     // When sharing the SPI Bus control of the NSS pin is done by us
-    if (shared)
+    if (vtxSPIIsShared)
     {
         vtxSPI->setBitOrder(LSBFIRST);
         digitalWrite(GPIO_PIN_SPI_VTX_NSS, LOW);
@@ -117,7 +117,7 @@ static void rtc6705WriteRegister(uint32_t regData)
         vtxSPI->transfer(buf, BUF_PACKET_SIZE);
     #endif
 
-    if (shared)
+    if (vtxSPIIsShared)
     {
         digitalWrite(GPIO_PIN_SPI_VTX_NSS, HIGH);
         vtxSPI->setBitOrder(MSBFIRST);
@@ -319,8 +319,11 @@ static void initialize()
 
     if (GPIO_PIN_SPI_VTX_NSS != UNDEF_PIN)
     {
-        if (GPIO_PIN_SPI_VTX_SCK != UNDEF_PIN && GPIO_PIN_SPI_VTX_SCK != GPIO_PIN_SCK)
+        vtxSPIIsShared = GPIO_PIN_SPI_VTX_SCK == UNDEF_PIN || GPIO_PIN_SPI_VTX_SCK == GPIO_PIN_SCK;
+
+        if (!vtxSPIIsShared)
         {
+            DBGLN("VTX: Using dedicated SPI");
             #if defined(PLATFORM_ESP32_S3)
             vtxSPI = new SPIClass(HSPI);
             vtxSPI->setFrequency(10000);
@@ -333,6 +336,7 @@ static void initialize()
         }
         else
         {
+            DBGLN("VTX: Using shared SPI");
             vtxSPI = &SPI;
             pinMode(GPIO_PIN_SPI_VTX_NSS, OUTPUT);
             digitalWrite(GPIO_PIN_SPI_VTX_NSS, HIGH);

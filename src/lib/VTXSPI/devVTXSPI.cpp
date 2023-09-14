@@ -324,6 +324,10 @@ static void initialize()
         if (!vtxSPIIsShared)
         {
             DBGLN("VTX: Using dedicated SPI");
+
+            pinMode(GPIO_PIN_SPI_VTX_SCK, OUTPUT);
+            digitalWrite(GPIO_PIN_SPI_VTX_SCK, HIGH);
+
             #if defined(PLATFORM_ESP32_S3)
             vtxSPI = new SPIClass(HSPI);
             #else

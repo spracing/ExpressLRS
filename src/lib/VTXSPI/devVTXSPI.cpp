@@ -333,14 +333,24 @@ static void initialize()
     {
         vtxSPIIsShared = GPIO_PIN_SPI_VTX_SCK == UNDEF_PIN || GPIO_PIN_SPI_VTX_SCK == GPIO_PIN_SCK;
 
+        // set the outputs correctly BEFORE changing the pin mode to prevent glitches
+
+        digitalWrite(GPIO_PIN_SPI_VTX_NSS, HIGH);
+        pinMode(GPIO_PIN_SPI_VTX_NSS, OUTPUT);
+
         if (!vtxSPIIsShared)
         {
             DBGLN("VTX: Using dedicated SPI");
 
-            pinMode(GPIO_PIN_SPI_VTX_SCK, OUTPUT);
-            pinMode(GPIO_PIN_SPI_VTX_MISO, INPUT);
-            pinMode(GPIO_PIN_SPI_VTX_MOSI, OUTPUT);
+            // prevent glitching by pre-initialising the SPI pins.
+            
             digitalWrite(GPIO_PIN_SPI_VTX_SCK, HIGH);
+            pinMode(GPIO_PIN_SPI_VTX_SCK, OUTPUT);
+
+            pinMode(GPIO_PIN_SPI_VTX_MISO, INPUT);
+
+            digitalWrite(GPIO_PIN_SPI_VTX_MOSI, LOW);
+            pinMode(GPIO_PIN_SPI_VTX_MOSI, OUTPUT);
 
             #if defined(PLATFORM_ESP32_S3)
             vtxSPI = new SPIClass(HSPI);
@@ -360,8 +370,6 @@ static void initialize()
         {
             DBGLN("VTX: Using shared SPI");
             vtxSPI = &SPI;
-            pinMode(GPIO_PIN_SPI_VTX_NSS, OUTPUT);
-            digitalWrite(GPIO_PIN_SPI_VTX_NSS, HIGH);
         }
 
         pinMode(GPIO_PIN_RF_AMP_VREF, OUTPUT);

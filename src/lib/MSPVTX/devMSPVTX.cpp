@@ -352,7 +352,7 @@ void disableMspVtx(void)
     mspState = STOP_MSPVTX;
 }
 
-static int event(void)
+static int event(bool timeout_expired)
 {
     if (GPIO_PIN_SPI_VTX_NSS == UNDEF_PIN)
     {

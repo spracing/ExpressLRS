@@ -35,7 +35,8 @@
 #define READ_BIT                                0x00
 #define WRITE_BIT                               0x01
 
-#define RTC6705_BOOT_DELAY                      350
+#define RTC6705_BOOT_DELAY_MS                   350
+#define RTC6705_SYNTHREGA_SETTLE_TIME_MS        2
 #define RTC6705_PLL_SETTLE_TIME_MS              500 // ms - after changing frequency turn amps back on after this time for clean switching
 #define VTX_POWER_INTERVAL_MS                   20
 
@@ -145,9 +146,7 @@ static void rtc6705SetFrequency(uint32_t freq)
 
     // Note that on the ESP32PicoD4 no delay was needed as it took 2ms to run the code without the delay
     // but on the ESP32S3 it only took 350us without a delay.
-#if defined(PLATFORM_ESP32_S3)
-    delay(2);
-#endif
+    delay(RTC6705_SYNTHREGA_SETTLE_TIME_MS);
 
     VTxOutputMinimum(); // Set power to zero for clear channel switching
 
@@ -395,8 +394,6 @@ static void initialize()
         DBGLN("VTX: PWM, min: %d, max: %d, spipwm: %d", vtxMinPWM, vtxMaxPWM, vtxSPIPWM);
 
         setPWM();
-
-        delay(RTC6705_BOOT_DELAY);
     }
 }
 
@@ -407,18 +404,22 @@ static int start()
         return DURATION_NEVER;
     }
 
-    rtc6705SetFrequency(5999); // Boot with VTx set away from standard frequencies.
-
+    vtxSPIFrequency = 5999; // Boot with VTx set away from standard frequencies.
     vtxPowerAmpEnable = true;
 
-    return RTC6705_PLL_SETTLE_TIME_MS;
+    return RTC6705_BOOT_DELAY_MS;
 }
 
-static int event()
+static int event(bool timeout_expired)
 {
     if (GPIO_PIN_SPI_VTX_NSS == UNDEF_PIN)
     {
         return DURATION_NEVER;
+    }
+
+    if (!timeout_expired) {
+        // Wait for existing timeout to elapse (e.g. RTC6705_BOOT_DELAY_MS, RTC6705_PLL_SETTLE_TIME_MS)
+        return DURATION_IGNORE;
     }
 
     if (
@@ -447,6 +448,20 @@ static int timeout()
         return DURATION_IMMEDIATELY;
     }
 
+    uint32_t now = millis();
+    DBGLN("VTX: timeout, now: %d", now);
+
+    if (vtxSPIFrequencyCurrent != vtxSPIFrequency)
+    {
+        DBGLN("VTX: Changing frequency, old: %d, new: %d", vtxSPIFrequencyCurrent, vtxSPIFrequency);
+
+        rtc6705SetFrequency(vtxSPIFrequency);
+        vtxSPIFrequencyCurrent = vtxSPIFrequency;
+
+        return RTC6705_PLL_SETTLE_TIME_MS;
+    }
+
+    // Note: it's important that the PA is handled after the frequency.
     if (vtxPowerAmpEnableCurrent != vtxPowerAmpEnable)
     {
         DBGLN("VTX: Changing internal PA, old: %d, new: %d", vtxPowerAmpEnableCurrent, vtxPowerAmpEnable);
@@ -457,16 +472,6 @@ static int timeout()
         vtxPowerAmpEnableCurrent = vtxPowerAmpEnable;
 
         return VTX_POWER_INTERVAL_MS;
-    }
-
-    if (vtxSPIFrequencyCurrent != vtxSPIFrequency)
-    {
-        DBGLN("VTX: Changing frequency, old: %d, new: %d", vtxSPIFrequencyCurrent, vtxSPIFrequency);
-
-        rtc6705SetFrequency(vtxSPIFrequency);
-        vtxSPIFrequencyCurrent = vtxSPIFrequency;
-
-        return RTC6705_PLL_SETTLE_TIME_MS;
     }
 
     if (vtxSPIPowerIdxCurrent != vtxSPIPowerIdx)

@@ -346,7 +346,8 @@ static void initialize()
             vtxSPI = new SPIClass(VSPI);
             #endif
             vtxSPI->begin(GPIO_PIN_SPI_VTX_SCK, GPIO_PIN_SPI_VTX_MISO, GPIO_PIN_SPI_VTX_MOSI, GPIO_PIN_SPI_VTX_NSS);
-            vtxSPI->setFrequency(100000);
+            // Note: RTC6705 specified minimum interval between 2 clocks as 100ns which is 10Mhz - Ref: "(4) SPI Digital Timing Diagram - T7"
+            vtxSPI->setFrequency(1000000);
             vtxSPI->setHwCs(true);
             vtxSPI->setBitOrder(LSBFIRST);
             //vtxSPI->setDataMode(SPI_MODE0);

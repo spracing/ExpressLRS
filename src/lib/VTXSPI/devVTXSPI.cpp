@@ -353,6 +353,8 @@ static void initialize()
             vtxSPI->setFrequency(1000000);
             vtxSPI->setHwCs(true);
             vtxSPI->setBitOrder(LSBFIRST);
+            // RTC6705 DS:"the chip will sample the SPIDATA on the rising edge of SPICLK"
+            // SPI_MODE0 is the default arduino SPI mode, but setting it again explicitly breaks the clock signal.
             //vtxSPI->setDataMode(SPI_MODE0);
         }
         else

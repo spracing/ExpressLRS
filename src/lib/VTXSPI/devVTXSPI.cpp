@@ -136,6 +136,16 @@ static void rtc6705SetFrequency(uint32_t freq)
 
     rtc6705ResetSynthRegA();
 
+    // RTC6705 seems to need a delay between setting the Synth A and B registers.
+    // Observed that on an ESP32S3 a timing of 350us does NOT work reliably.
+    // and that on an ESP32PicoD4 a timing of 2ms DOES work.
+
+    // Note that on the ESP32PicoD4 no delay was needed as it took 2ms to run the code without the delay
+    // but on the ESP32S3 it only took 350us without a delay.
+#if defined(PLATFORM_ESP32_S3)
+    delay(2);
+#endif
+
     VTxOutputMinimum(); // Set power to zero for clear channel switching
 
     uint32_t f = 25 * freq;

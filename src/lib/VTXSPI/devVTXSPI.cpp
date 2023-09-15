@@ -54,6 +54,9 @@ static uint8_t vtxSPIPowerIdxCurrent = 0;
 uint8_t vtxSPIPitmode = 1;
 static uint8_t vtxSPIPitmodeCurrent = 1;
 
+bool vtxPowerAmpEnableCurrent = false;
+bool vtxPowerAmpEnable = false;
+
 static uint8_t RfAmpVrefState = 0;
 
 static uint16_t vtxSPIPWM = MAX_PWM;
@@ -404,9 +407,9 @@ static int start()
 
     rtc6705SetFrequency(5999); // Boot with VTx set away from standard frequencies.
 
-    rtc6705PowerAmpOn();
+    vtxPowerAmpEnable = true;
 
-    return VTX_POWER_INTERVAL_MS;
+    return RTC6705_PLL_SETTLE_TIME_MS;
 }
 
 static int event()
@@ -416,7 +419,12 @@ static int event()
         return DURATION_NEVER;
     }
 
-    if (vtxSPIFrequencyCurrent != vtxSPIFrequency || vtxSPIPowerIdxCurrent != vtxSPIPowerIdx || vtxSPIPitmodeCurrent != vtxSPIPitmode)
+    if (
+        vtxSPIFrequencyCurrent != vtxSPIFrequency || 
+        vtxSPIPowerIdxCurrent != vtxSPIPowerIdx || 
+        vtxSPIPitmodeCurrent != vtxSPIPitmode ||
+        vtxPowerAmpEnableCurrent != vtxPowerAmpEnable
+    )
     {
         return DURATION_IMMEDIATELY;
     }
@@ -435,6 +443,18 @@ static int timeout()
     {
         // Dont run spi and analog reads during rx hopping, wifi or updating
         return DURATION_IMMEDIATELY;
+    }
+
+    if (vtxPowerAmpEnableCurrent != vtxPowerAmpEnable)
+    {
+        DBGLN("VTX: Changing internal PA, old: %d, new: %d", vtxPowerAmpEnableCurrent, vtxPowerAmpEnable);
+        if (vtxPowerAmpEnable)
+        {
+            rtc6705PowerAmpOn();
+        }
+        vtxPowerAmpEnableCurrent = vtxPowerAmpEnable;
+
+        return VTX_POWER_INTERVAL_MS;
     }
 
     if (vtxSPIFrequencyCurrent != vtxSPIFrequency)

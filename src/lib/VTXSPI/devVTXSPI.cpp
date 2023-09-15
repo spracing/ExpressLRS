@@ -36,7 +36,7 @@
 #define WRITE_BIT                               0x01
 
 #define RTC6705_BOOT_DELAY_MS                   350
-#define RTC6705_SYNTHREGA_SETTLE_TIME_MS        2
+#define RTC6705_SYNTHREGA_SETTLE_TIME_US        10
 #define RTC6705_PLL_SETTLE_TIME_MS              500 // ms - after changing frequency turn amps back on after this time for clean switching
 #define VTX_POWER_INTERVAL_MS                   20
 
@@ -140,13 +140,7 @@ static void rtc6705SetFrequency(uint32_t freq)
 
     rtc6705ResetSynthRegA();
 
-    // RTC6705 seems to need a delay between setting the Synth A and B registers.
-    // Observed that on an ESP32S3 a timing of 350us does NOT work reliably.
-    // and that on an ESP32PicoD4 a timing of 2ms DOES work.
-
-    // Note that on the ESP32PicoD4 no delay was needed as it took 2ms to run the code without the delay
-    // but on the ESP32S3 it only took 350us without a delay.
-    delay(RTC6705_SYNTHREGA_SETTLE_TIME_MS);
+    delayMicroseconds(RTC6705_SYNTHREGA_SETTLE_TIME_US);
 
     VTxOutputMinimum(); // Set power to zero for clear channel switching
 
@@ -343,7 +337,7 @@ static void initialize()
             DBGLN("VTX: Using dedicated SPI");
 
             // prevent glitching by pre-initialising the SPI pins.
-            
+
             digitalWrite(GPIO_PIN_SPI_VTX_SCK, HIGH);
             pinMode(GPIO_PIN_SPI_VTX_SCK, OUTPUT);
 

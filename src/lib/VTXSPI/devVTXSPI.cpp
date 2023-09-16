@@ -84,7 +84,21 @@ static void rtc6705WriteRegister(uint32_t regData)
         digitalWrite(GPIO_PIN_SPI_VTX_NSS, LOW);
     }
 
-    #if defined(PLATFORM_ESP32)
+    #if defined(PLATFORM_ESP32_S3)
+        // On the S3 there's either a library/rom/silicon bug, sometimes when sending 25 bits the last
+        // bit is 1, when it should be 0.
+        //
+        // to reproduce, change from channel A4 to A1, then A1 to A4 (ok), then A4 to A3, then A3 to A4 (fail)
+        // 12816, 9286833 appears on the scope when changing from A:1->A:4
+        // 12816, 26064049 appears on the scope when changing from A:3->A:4
+        // 
+        // 9286833  = 0_1000_1101_1011_0100_1011_0001
+        // 26064049 = 1_1000_1101_1011_0100_1011_0001
+        //
+        // so, to workaround this issue, we send 32 bits, and the RTC67005 ignores the last 7 bits.
+        regData |= 0b1111111 << 25;
+        vtxSPI->transferBits(regData, nullptr, 32);
+    #elif defined(PLATFORM_ESP32)
         vtxSPI->transferBits(regData, nullptr, 25);
     #else
         uint8_t buf[BUF_PACKET_SIZE];

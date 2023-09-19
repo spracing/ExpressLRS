@@ -102,6 +102,8 @@ public:
     static volatile bool running;
     static volatile bool isTick;
 
+    static volatile int32_t FreqOffset;
+
 private:
     static void callback();
 
@@ -110,5 +112,4 @@ private:
 
     static volatile uint32_t HWtimerInterval;
     static volatile int32_t PhaseShift;
-    static volatile int32_t FreqOffset;
 };
